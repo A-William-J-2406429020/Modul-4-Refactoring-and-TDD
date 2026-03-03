@@ -163,7 +163,7 @@ class ProductRepositoryTest {
         product1.setProductQuantity(100);
         productRepository.create(product1);
 
-        Product savedProduct = productRepository.findProduct("eb558e9f-1c39-460e-8860-71af6af63bd6");
+        Product savedProduct = productRepository.findById("eb558e9f-1c39-460e-8860-71af6af63bd6");
         assertEquals(product1, savedProduct);
     }
 
@@ -175,7 +175,7 @@ class ProductRepositoryTest {
         product1.setProductQuantity(100);
         productRepository.create(product1);
 
-        Product savedProduct = productRepository.findProduct("0929");
+        Product savedProduct = productRepository.findById("0929");
         assertNull(savedProduct);
     }
 

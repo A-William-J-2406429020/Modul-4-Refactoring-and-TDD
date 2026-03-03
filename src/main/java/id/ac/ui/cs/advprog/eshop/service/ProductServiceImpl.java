@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.eshop.service;
 
 import id.ac.ui.cs.advprog.eshop.model.Product;
 import id.ac.ui.cs.advprog.eshop.repository.ProductRepository;
+import id.ac.ui.cs.advprog.eshop.repository.ProductRepositoryImpl;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,9 +11,9 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository productRepository;
+    private final ProductRepositoryImpl productRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(ProductRepositoryImpl productRepository) {
         this.productRepository = productRepository;
     }
 
@@ -31,8 +32,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product findProduct(String productId){
-        return productRepository.findProduct(productId);
+    public Product findById(String productId){
+        return productRepository.findById(productId);
     }
 
 

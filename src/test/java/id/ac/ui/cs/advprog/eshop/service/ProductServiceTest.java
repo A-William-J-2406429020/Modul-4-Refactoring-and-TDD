@@ -61,13 +61,13 @@ class ProductServiceImplTest {
 
     @Test
     void testFindProductById() {
-        when(productRepository.findProduct(product.getProductId())).thenReturn(product);
+        when(productRepository.findById(product.getProductId())).thenReturn(product);
 
         Product foundProduct = productService.findProduct(product.getProductId());
 
         assertNotNull(foundProduct);
         assertEquals(product.getProductId(), foundProduct.getProductId());
-        verify(productRepository, times(1)).findProduct(product.getProductId());
+        verify(productRepository, times(1)).findById(product.getProductId());
     }
 
     @Test
