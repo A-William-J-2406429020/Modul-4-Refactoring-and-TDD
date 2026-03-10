@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class OrderServiceTest {
+public class OrderServiceImplTest { // Refactor 6: Ubah nama file agar sesuai nama class dan convention
 
     @InjectMocks
     OrderServiceImpl orderService;
