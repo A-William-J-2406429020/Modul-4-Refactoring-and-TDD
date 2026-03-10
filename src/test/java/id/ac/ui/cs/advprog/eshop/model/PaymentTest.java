@@ -65,9 +65,10 @@ class PaymentTest {
     }
 
     @Test
-    void testSetInvalidPaymentMethod() {
+    void testSetInvalidPaymentStatus() {
         assertThrows(IllegalArgumentException.class, () -> {
-            this.payment.setMethod("InvalidMethod");
+            Payment invalidPayment = new Payment("payment-3", "Voucher", "InvalidStatus", this.paymentData);
         });
+
     }
 }

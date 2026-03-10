@@ -3,7 +3,7 @@ package id.ac.ui.cs.advprog.eshop.model;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
+@Getter @Setter
 public class Payment {
     private String id;
     private String method;
@@ -20,7 +20,7 @@ public class Payment {
         } else {
             throw new IllegalArgumentException();
         }
-    }
+    }[]
 
     public void setMethod(String method) {
         if (method.equals("Voucher") || method.equals("Transfer")) {
