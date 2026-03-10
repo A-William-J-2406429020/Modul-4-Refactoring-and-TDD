@@ -24,7 +24,7 @@ class PaymentTest {
     void testCreatePayment() {
         assertEquals("payment-1", this.payment.getId());
         assertEquals("Voucher", this.payment.getMethod());
-        assertEquals("REJECTED", this.payment.getStatus());
+        assertEquals("SUCCESS", this.payment.getStatus());
         assertSame(this.paymentData, this.payment.getPaymentData());
         assertEquals("PROMOHEMAT", this.payment.getPaymentData().get("voucherCode"));
         assertEquals("50000", this.payment.getPaymentData().get("voucherDiscount"));
@@ -62,5 +62,12 @@ class PaymentTest {
         assertSame(newPaymentData, this.payment.getPaymentData());
         assertEquals("BCA", this.payment.getPaymentData().get("bankName"));
         assertEquals("1234567890", this.payment.getPaymentData().get("accountNumber"));
+    }
+
+    @Test
+    void testSetInvalidPaymentMethod() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            this.payment.setMethod("InvalidMethod");
+        });
     }
 }
