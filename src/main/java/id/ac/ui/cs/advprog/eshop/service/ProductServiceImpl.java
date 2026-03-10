@@ -11,9 +11,10 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepositoryImpl productRepository;
+    // Refactor 4: Dependency inversion by programming to an interface -Aldo
+    private final ProductRepository productRepository;
 
-    public ProductServiceImpl(ProductRepositoryImpl productRepository) {
+    public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
