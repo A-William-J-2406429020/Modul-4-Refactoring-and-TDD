@@ -22,7 +22,6 @@ public class Order {
         } else {
             this.products = products;
         }
-
         this.status = "WAITING_PAYMENT";
     }
 
