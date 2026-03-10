@@ -140,4 +140,29 @@ class PaymentServiceImplTest {
 	assertEquals(payment.getMethod(), result.getMethod());
 	assertEquals(payment.getStatus(), result.getStatus());
     }
+
+    @Test
+    void testGetPaymentIfIdNotFound() {
+	doReturn(null).when(paymentRepository).findById("missing-payment");
+
+	Payment result = paymentService.getPayment("missing-payment");
+
+	assertNull(result);
+    }
+
+    @Test
+    void testGetAllPayments() {
+	List<Payment> payments = Arrays.asList(
+		payment,
+		new Payment("payment-2", "Transfer", PaymentStatus.SUCCESS.getValue(), new HashMap<>())
+	);
+
+	doReturn(payments).when(paymentRepository).findAll();
+
+	List<Payment> results = paymentService.getAllPayments();
+
+	assertEquals(2, results.size());
+	assertEquals(payment.getId(), results.get(0).getId());
+	assertEquals("payment-2", results.get(1).getId());
+    }
 }
