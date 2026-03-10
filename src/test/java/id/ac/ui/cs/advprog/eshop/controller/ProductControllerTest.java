@@ -76,7 +76,7 @@ class ProductControllerTest {
 
     @Test
     void testEditProductPage() throws Exception {
-        when(service.findProduct(product.getProductId())).thenReturn(product);
+        when(service.findById(product.getProductId())).thenReturn(product);
 
         mockMvc.perform(get("/product/edit/" + product.getProductId()))
                 .andExpect(status().isOk())
