@@ -254,7 +254,7 @@ class PaymentServiceImplTest {
 
 	doReturn(payments).when(paymentRepository).findAll();
 
-	List<Payment> results = paymentService.getAllPayments();
+	List<Payment> results = paymentService.getAllPayment();
 
 	assertEquals(2, results.size());
 	assertEquals(payment.getId(), results.get(0).getId());

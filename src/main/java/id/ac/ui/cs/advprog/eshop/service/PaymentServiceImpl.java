@@ -16,17 +16,29 @@ import java.util.NoSuchElementException;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-	@Autowired
-	private PaymentRepository paymentRepository;
+	// Refactor 1: Extract magic numbers and Strings to constants -Aldo
+	private static final String VOUCHER_PREFIX = "ESHOP";
+	private static final int VOUCHER_LENGTH = 16;
+	private static final int VOUCHER_NUM_DIGITS = 8;
+	private static final String PAYMENT_METHOD_VOUCHER = "Voucher";
+	private static final String PAYMENT_METHOD_BANK_TRANSFER = "Bank Transfer";
+
+	// Refactor 2: Use constructor injection instead of field injection -Aldo
+	private final PaymentRepository paymentRepository;
+	private final OrderRepository orderRepository;
 
 	@Autowired
-	private OrderRepository orderRepository;
+	public PaymentServiceImpl(PaymentRepository paymentRepository, OrderRepository orderRepository) {
+		this.paymentRepository = paymentRepository;
+		this.orderRepository = orderRepository;
+	}
 
 	@Override
 	public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
 		Payment payment = new Payment(order.getId(), method, paymentData);
 
-		if ("Voucher".equals(method)) {
+		// Refactor all the corresponding conditions to use the newly defined constants -Aldo
+		if (PAYMENT_METHOD_VOUCHER.equals(method)) {
 			String voucherCode = paymentData.get("voucherCode");
 			if (isValidVoucherCode(voucherCode)) {
 				return setStatus(payment, PaymentStatus.SUCCESS.getValue());
@@ -34,7 +46,7 @@ public class PaymentServiceImpl implements PaymentService {
 			return setStatus(payment, PaymentStatus.REJECTED.getValue());
 		}
 
-		if ("Bank Transfer".equals(method)) {
+		if (PAYMENT_METHOD_BANK_TRANSFER.equals(method)) {
 			if (isValidBankTransferData(paymentData)) {
 				return setStatus(payment, PaymentStatus.SUCCESS.getValue());
 			}
@@ -75,23 +87,21 @@ public class PaymentServiceImpl implements PaymentService {
 		return paymentRepository.findAll();
 	}
 
-	public List<Payment> getAllPayments() {
-		return getAllPayment();
-	}
-
+	// Refactor 3: Removed redundant getAllPayments() method here
 	public boolean isValidVoucherCode(String voucherCode) {
-		if (voucherCode == null || voucherCode.length() != 16) {
+		// Refactor conditions to use the newly defined constants as well  -Aldo
+		if (voucherCode == null || voucherCode.length() != VOUCHER_LENGTH) {
 			return false;
 		}
 
-		if (!voucherCode.startsWith("ESHOP")) {
+		if (!voucherCode.startsWith(VOUCHER_PREFIX)) {
 			return false;
 		}
 
 		long digitCount = voucherCode.chars()
 				.filter(Character::isDigit)
 				.count();
-		return digitCount == 8;
+		return digitCount == VOUCHER_NUM_DIGITS;
 	}
 
 	public boolean isValidBankTransferData(Map<String, String> paymentData) {
