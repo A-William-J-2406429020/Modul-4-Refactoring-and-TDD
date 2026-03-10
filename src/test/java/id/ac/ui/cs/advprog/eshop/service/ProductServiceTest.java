@@ -63,7 +63,7 @@ class ProductServiceImplTest {
     void testFindProductById() {
         when(productRepository.findById(product.getProductId())).thenReturn(product);
 
-        Product foundProduct = productService.findProduct(product.getProductId());
+        Product foundProduct = productService.findById(product.getProductId());
 
         assertNotNull(foundProduct);
         assertEquals(product.getProductId(), foundProduct.getProductId());
