@@ -20,14 +20,5 @@ public class Payment {
         } else {
             throw new IllegalArgumentException();
         }
-    }[]
-
-    public void setMethod(String method) {
-        if (method.equals("Voucher") || method.equals("Transfer")) {
-            this.method = method;
-        } else {
-            throw new IllegalArgumentException();
-        }
     }
-
 }
