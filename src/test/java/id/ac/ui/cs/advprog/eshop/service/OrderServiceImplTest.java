@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 class OrderServiceTest {
 
     @InjectMocks
-    OrderServiceImpl.OrderServiceImpl orderService;
+    OrderServiceImpl orderService;
 
     @Mock
     OrderRepository orderRepository;
