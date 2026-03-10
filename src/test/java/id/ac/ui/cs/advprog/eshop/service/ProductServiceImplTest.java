@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ProductServiceImplTest {
+public class ProductServiceImplTest { // Refactor 5: Ubah nama file agar sesuai nama class dan convention
 
     @Mock
     private ProductRepository productRepository;
