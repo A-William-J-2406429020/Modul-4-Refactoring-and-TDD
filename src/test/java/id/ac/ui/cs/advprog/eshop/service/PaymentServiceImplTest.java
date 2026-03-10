@@ -46,6 +46,8 @@ class PaymentServiceImplTest {
     private Payment payment;
     private Map<String, String> paymentData;
     private Map<String, String> invalidVoucherPaymentData;
+	private Map<String, String> bankTransferPaymentData;
+	private Map<String, String> invalidBankTransferPaymentData;
 
     @BeforeEach
     void setUp() {
@@ -70,6 +72,14 @@ class PaymentServiceImplTest {
 	invalidVoucherPaymentData = new HashMap<>();
 	invalidVoucherPaymentData.put("voucherCode", "PROMOHEMAT");
 	invalidVoucherPaymentData.put("voucherDiscount", "50000");
+
+	bankTransferPaymentData = new HashMap<>();
+	bankTransferPaymentData.put("bankName", "BCA");
+	bankTransferPaymentData.put("referenceCode", "TRF-20260310-001");
+
+	invalidBankTransferPaymentData = new HashMap<>();
+	invalidBankTransferPaymentData.put("bankName", "");
+	invalidBankTransferPaymentData.put("referenceCode", "TRF-20260310-002");
 
 	payment = new Payment(
 		order.getId(),
@@ -119,16 +129,54 @@ class PaymentServiceImplTest {
     }
 
     @Test
-	void testAddPaymentWithNonVoucherKeepsDefaultRejectedStatus() {
+	void testAddPaymentWithValidBankTransferSetsStatusToSuccess() {
+	doReturn(order).when(orderRepository).findById(order.getId());
+	doAnswer(invocation -> invocation.getArgument(0))
+		.when(paymentRepository)
+		.save(any(Payment.class));
+	doAnswer(invocation -> invocation.getArgument(0))
+		.when(orderRepository)
+		.save(any(Order.class));
+
+	Payment result = paymentService.addPayment(order, "Bank Transfer", bankTransferPaymentData);
+
+	verify(paymentRepository, times(1)).save(any(Payment.class));
+	verify(orderRepository, times(1)).save(order);
+	assertEquals("Bank Transfer", result.getMethod());
+	assertSame(bankTransferPaymentData, result.getPaymentData());
+	assertEquals(PaymentStatus.SUCCESS.getValue(), result.getStatus());
+	assertEquals(OrderStatus.SUCCESS.getValue(), order.getStatus());
+	}
+
+	@Test
+	void testAddPaymentWithInvalidBankTransferSetsStatusToRejected() {
+	doReturn(order).when(orderRepository).findById(order.getId());
+	doAnswer(invocation -> invocation.getArgument(0))
+		.when(paymentRepository)
+		.save(any(Payment.class));
+	doAnswer(invocation -> invocation.getArgument(0))
+		.when(orderRepository)
+		.save(any(Order.class));
+
+	Payment result = paymentService.addPayment(order, "Bank Transfer", invalidBankTransferPaymentData);
+
+	verify(paymentRepository, times(1)).save(any(Payment.class));
+	verify(orderRepository, times(1)).save(order);
+	assertEquals(PaymentStatus.REJECTED.getValue(), result.getStatus());
+	assertEquals(OrderStatus.FAILED.getValue(), order.getStatus());
+	}
+
+	@Test
+	void testAddPaymentWithOtherMethodKeepsDefaultRejectedStatus() {
 	doAnswer(invocation -> invocation.getArgument(0))
 		.when(paymentRepository)
 		.save(any(Payment.class));
 
-	Payment result = paymentService.addPayment(order, "Transfer", paymentData);
+	Payment result = paymentService.addPayment(order, "Cash on Delivery", paymentData);
 
 	verify(paymentRepository, times(1)).save(any(Payment.class));
 	verify(orderRepository, never()).findById(any(String.class));
-	assertEquals("Transfer", result.getMethod());
+	assertEquals("Cash on Delivery", result.getMethod());
 	assertEquals(PaymentStatus.REJECTED.getValue(), result.getStatus());
     }
 
@@ -209,5 +257,10 @@ class PaymentServiceImplTest {
 	assertEquals(2, results.size());
 	assertEquals(payment.getId(), results.get(0).getId());
 	assertEquals("payment-2", results.get(1).getId());
+    }
+
+    @Test
+    void testSetStatusWithInvalidOrderIdThrowsException() { 
+        
     }
 }

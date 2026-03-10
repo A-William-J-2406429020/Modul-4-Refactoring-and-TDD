@@ -103,7 +103,6 @@ class PaymentRepositoryTest {
 		for (Payment payment : payments) {
 			paymentRepository.save(payment);
 		}
-
 		Payment findResult = paymentRepository.findById("missing-payment");
 
 		assertNull(findResult);

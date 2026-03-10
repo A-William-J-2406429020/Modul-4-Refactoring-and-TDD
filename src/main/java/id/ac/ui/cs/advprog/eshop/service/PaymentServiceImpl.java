@@ -34,6 +34,13 @@ public class PaymentServiceImpl implements PaymentService {
 			return setStatus(payment, PaymentStatus.REJECTED.getValue());
 		}
 
+		if ("Bank Transfer".equals(method)) {
+			if (isValidBankTransferData(paymentData)) {
+				return setStatus(payment, PaymentStatus.SUCCESS.getValue());
+			}
+			return setStatus(payment, PaymentStatus.REJECTED.getValue());
+		}
+
 		paymentRepository.save(payment);
 		return payment;
 	}
@@ -85,5 +92,15 @@ public class PaymentServiceImpl implements PaymentService {
 				.filter(Character::isDigit)
 				.count();
 		return digitCount == 8;
+	}
+
+	private boolean isValidBankTransferData(Map<String, String> paymentData) {
+		String bankName = paymentData.get("bankName");
+		String referenceCode = paymentData.get("referenceCode");
+
+		return bankName != null
+				&& !bankName.isBlank()
+				&& referenceCode != null
+				&& !referenceCode.isBlank();
 	}
 }
