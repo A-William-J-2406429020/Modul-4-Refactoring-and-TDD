@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.eshop.service;
 
 import id.ac.ui.cs.advprog.eshop.enums.OrderStatus;
+import id.ac.ui.cs.advprog.eshop.enums.PaymentStatus;
 import id.ac.ui.cs.advprog.eshop.model.Order;
 import id.ac.ui.cs.advprog.eshop.model.Payment;
 import id.ac.ui.cs.advprog.eshop.repository.OrderRepository;
@@ -24,6 +25,15 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public Payment addPayment(Order order, String method, Map<String, String> paymentData) {
 		Payment payment = new Payment(order.getId(), method, paymentData);
+
+		if ("Voucher".equals(method)) {
+			String voucherCode = paymentData.get("voucherCode");
+			if (isValidVoucherCode(voucherCode)) {
+				return setStatus(payment, PaymentStatus.SUCCESS.getValue());
+			}
+			return setStatus(payment, PaymentStatus.REJECTED.getValue());
+		}
+
 		paymentRepository.save(payment);
 		return payment;
 	}
@@ -37,7 +47,7 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new NoSuchElementException();
 		}
 
-		if (OrderStatus.SUCCESS.getValue().equals(status)) {
+		if (PaymentStatus.SUCCESS.getValue().equals(status)) {
 			order.setStatus(OrderStatus.SUCCESS.getValue());
 		} else {
 			order.setStatus(OrderStatus.FAILED.getValue());
@@ -60,5 +70,20 @@ public class PaymentServiceImpl implements PaymentService {
 
 	public List<Payment> getAllPayments() {
 		return getAllPayment();
+	}
+
+	private boolean isValidVoucherCode(String voucherCode) {
+		if (voucherCode == null || voucherCode.length() != 16) {
+			return false;
+		}
+
+		if (!voucherCode.startsWith("ESHOP")) {
+			return false;
+		}
+
+		long digitCount = voucherCode.chars()
+				.filter(Character::isDigit)
+				.count();
+		return digitCount == 8;
 	}
 }

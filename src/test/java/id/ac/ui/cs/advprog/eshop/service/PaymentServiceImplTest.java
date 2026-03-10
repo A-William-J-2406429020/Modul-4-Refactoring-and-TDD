@@ -23,9 +23,11 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -40,10 +42,10 @@ class PaymentServiceImplTest {
 
     @Mock
     private OrderRepository orderRepository;
-
     private Order order;
     private Payment payment;
     private Map<String, String> paymentData;
+    private Map<String, String> invalidVoucherPaymentData;
 
     @BeforeEach
     void setUp() {
@@ -58,12 +60,16 @@ class PaymentServiceImplTest {
 		"payment-1",
 		products,
 		1708560000L,
-		"Safira Sudrajat"
+		"William"
 	);
 
 	paymentData = new HashMap<>();
-	paymentData.put("voucherCode", "PROMOHEMAT");
+	paymentData.put("voucherCode", "ESHOP12345678ABC");
 	paymentData.put("voucherDiscount", "50000");
+
+	invalidVoucherPaymentData = new HashMap<>();
+	invalidVoucherPaymentData.put("voucherCode", "PROMOHEMAT");
+	invalidVoucherPaymentData.put("voucherDiscount", "50000");
 
 	payment = new Payment(
 		order.getId(),
@@ -74,17 +80,56 @@ class PaymentServiceImplTest {
     }
 
     @Test
-    void testAddPayment() {
+	void testAddPaymentWithValidVoucherSetsStatusToSuccess() {
+	doReturn(order).when(orderRepository).findById(order.getId());
 	doAnswer(invocation -> invocation.getArgument(0))
 		.when(paymentRepository)
 		.save(any(Payment.class));
+	doAnswer(invocation -> invocation.getArgument(0))
+		.when(orderRepository)
+		.save(any(Order.class));
 
 	Payment result = paymentService.addPayment(order, "Voucher", paymentData);
 
 	verify(paymentRepository, times(1)).save(any(Payment.class));
+	verify(orderRepository, times(1)).save(order);
 	assertEquals(order.getId(), result.getId());
 	assertEquals("Voucher", result.getMethod());
 	assertSame(paymentData, result.getPaymentData());
+	assertEquals(PaymentStatus.SUCCESS.getValue(), result.getStatus());
+	assertEquals(OrderStatus.SUCCESS.getValue(), order.getStatus());
+    }
+
+    @Test
+	void testAddPaymentWithInvalidVoucherSetsStatusToRejected() {
+	doReturn(order).when(orderRepository).findById(order.getId());
+	doAnswer(invocation -> invocation.getArgument(0))
+		.when(paymentRepository)
+		.save(any(Payment.class));
+	doAnswer(invocation -> invocation.getArgument(0))
+		.when(orderRepository)
+		.save(any(Order.class));
+
+	Payment result = paymentService.addPayment(order, "Voucher", invalidVoucherPaymentData);
+
+	verify(paymentRepository, times(1)).save(any(Payment.class));
+	verify(orderRepository, times(1)).save(order);
+	assertEquals(PaymentStatus.REJECTED.getValue(), result.getStatus());
+	assertEquals(OrderStatus.FAILED.getValue(), order.getStatus());
+    }
+
+    @Test
+	void testAddPaymentWithNonVoucherKeepsDefaultRejectedStatus() {
+	doAnswer(invocation -> invocation.getArgument(0))
+		.when(paymentRepository)
+		.save(any(Payment.class));
+
+	Payment result = paymentService.addPayment(order, "Transfer", paymentData);
+
+	verify(paymentRepository, times(1)).save(any(Payment.class));
+	verify(orderRepository, never()).findById(any(String.class));
+	assertEquals("Transfer", result.getMethod());
+	assertEquals(PaymentStatus.REJECTED.getValue(), result.getStatus());
     }
 
     @Test
