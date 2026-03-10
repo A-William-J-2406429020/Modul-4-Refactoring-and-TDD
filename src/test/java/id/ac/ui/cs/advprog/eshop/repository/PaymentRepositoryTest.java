@@ -107,4 +107,14 @@ class PaymentRepositoryTest {
 
 		assertNull(findResult);
 	}
+
+    @Test
+    void testGetAllPayments() {
+        for (Payment payment : payments) {
+            paymentRepository.save(payment);
+        }
+        List<Payment> results = paymentRepository.findAll();
+
+        assertEquals(2, results.size());
+    }
 }

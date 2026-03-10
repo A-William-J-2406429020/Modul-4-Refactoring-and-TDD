@@ -79,7 +79,7 @@ public class PaymentServiceImpl implements PaymentService {
 		return getAllPayment();
 	}
 
-	private boolean isValidVoucherCode(String voucherCode) {
+	public boolean isValidVoucherCode(String voucherCode) {
 		if (voucherCode == null || voucherCode.length() != 16) {
 			return false;
 		}
@@ -94,7 +94,7 @@ public class PaymentServiceImpl implements PaymentService {
 		return digitCount == 8;
 	}
 
-	private boolean isValidBankTransferData(Map<String, String> paymentData) {
+	public boolean isValidBankTransferData(Map<String, String> paymentData) {
 		String bankName = paymentData.get("bankName");
 		String referenceCode = paymentData.get("referenceCode");
 

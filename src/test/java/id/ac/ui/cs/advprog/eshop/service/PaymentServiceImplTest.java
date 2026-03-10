@@ -260,7 +260,6 @@ class PaymentServiceImplTest {
     }
 
     @Test
-    void testSetStatusWithInvalidOrderIdThrowsException() { 
-        
-    }
+    void testVoucherIsNotValid()
+    
 }
